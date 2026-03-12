@@ -1,5 +1,5 @@
 import { Analytics } from "@vercel/analytics/react";
-import React, { useState,  useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Clock, Boxes, Wallet, ArrowRightLeft, Shield, Activity, ChevronRight, ChevronDown, RefreshCw } from 'lucide-react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import type { Network, Block, Transaction } from './types';
@@ -8,7 +8,6 @@ import { StatsCard } from './components/StatsCard';
 import { TransactionDetailModal } from './components/TransactionDetailModal';
 import { fetchTransactionDetails, formatTimeAgo, fetchWalletTransactions } from './utils/fetchUtils';
 import { useSolanaData } from './hooks/useSolanaData';
-
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedNetwork, setSelectedNetwork] = useState<Network>('devnet');
@@ -32,14 +31,10 @@ function App() {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [retryCount, setRetryCount] = useState(0);
-
   useSolanaData(connection, setRecentBlocks, setRecentTransactions, retryCount, setRetryCount, setIsLoading);
-
-
   useEffect(() => {
     fetchWalletTransactions(connection, connectedWallet, setWalletTransactions, setIsWalletTxLoading);
   }, [connectedWallet, connection]);
-
   const handleNetworkChange = (network: Network) => {
     setSelectedNetwork(network);
     setIsNetworkDropdownOpen(false);
@@ -51,14 +46,13 @@ function App() {
     console.log("Current connection endpoint:", newConnection.rpcEndpoint);
     setConnection(newConnection);
   };
-
   const handleConnectWallet = async () => {
     if (connectedWallet) {
       setConnectedWallet(null);
       setWalletTransactions([]);
       return;
     }
-    
+   
     setIsWalletConnecting(true);
     try {
       const { solana } = window as any;
@@ -74,21 +68,20 @@ function App() {
       setIsWalletConnecting(false);
     }
   };
-
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
-    
+   
     console.log('Starting search for:', searchQuery, 'on network:', selectedNetwork, 'length:', searchQuery.length);
     setIsSearchLoading(true);
     setHasSearched(true);
     setSearchResults([]);
-    
+   
     try {
       try {
         console.log('Attempting to treat as transaction signature...');
         const txDetails = await fetchTransactionDetails(connection, searchQuery);
         console.log('txDetails after fetch:', txDetails);
-        
+       
         if (txDetails) {
           console.log('Setting searchResults with:', [txDetails]);
           setSearchResults([txDetails]);
@@ -98,13 +91,13 @@ function App() {
       } catch (sigError) {
         console.warn('Not a valid transaction signature:', sigError);
       }
-      
+     
       try {
         console.log('Attempting to treat as address...');
         const pubKey = new PublicKey(searchQuery);
         const signatures = await connection.getSignaturesForAddress(pubKey, { limit: 10 });
         console.log('Signatures found for address:', signatures);
-        
+       
         if (signatures.length > 0) {
           const txs: Transaction[] = [];
           for (const sig of signatures) {
@@ -119,7 +112,7 @@ function App() {
       } catch (addrError) {
         console.warn('Not a valid address:', addrError);
       }
-      
+     
       try {
         const blockNum = parseInt(searchQuery);
         if (!isNaN(blockNum)) {
@@ -127,7 +120,7 @@ function App() {
           const blockInfo = await connection.getBlock(blockNum, {
             maxSupportedTransactionVersion: 0
           });
-          
+         
           if (blockInfo) {
             const blockTxs: Transaction[] = [];
             for (let i = 0; i < Math.min(5, blockInfo.transactions.length); i++) {
@@ -148,11 +141,9 @@ function App() {
       console.log('Search complete, isSearchLoading set to false');
     }
   };
-
   const handleTransactionClick = (tx: Transaction) => {
     setSelectedTransaction(tx);
   };
-
   return (
     <div className="min-h-screen bg-[#0c0d10]">
       {/* Header and rest of JSX remains the same as original, but with tps displayed (even if 0) */}
@@ -219,7 +210,6 @@ function App() {
           </div>
         </div>
       </header>
-
       {/* Search Section */}
       <div className="container mx-auto px-4 py-6 md:py-12">
         <div className="max-w-3xl mx-auto">
@@ -244,7 +234,6 @@ function App() {
           </div>
         </div>
       </div>
-
       {/* Search Results */}
       {hasSearched && (
         <div className="container mx-auto px-4 mb-8">
@@ -282,7 +271,6 @@ function App() {
           </div>
         </div>
       )}
-
       {/* Wallet Transactions */}
       {connectedWallet && (
         <div className="container mx-auto px-4 mb-8">
@@ -330,7 +318,6 @@ function App() {
           </div>
         </div>
       )}
-
       {/* Stats Grid */}
       <div className="container mx-auto px-4 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -354,7 +341,6 @@ function App() {
           />
         </div>
       </div>
-
       {/* Recent Activity */}
       <div className="container mx-auto px-4 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -391,7 +377,6 @@ function App() {
               )}
             </div>
           </div>
-
           <div className="bg-[#1a1b23] rounded-xl border border-[#2a2b35] p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-white">Recent Transactions</h2>
@@ -431,7 +416,6 @@ function App() {
           </div>
         </div>
       </div>
-
       {/* Transaction Detail Modal */}
       {selectedTransaction && (
         <TransactionDetailModal
@@ -439,7 +423,6 @@ function App() {
           onClose={() => setSelectedTransaction(null)}
         />
       )}
-
       {/* Footer */}
       <footer className="bg-[#1a1b23] py-8" style={{ backgroundColor: 'rgba(12,13,16,255)' }}>
         <div className="container mx-auto px-4 text-center">
@@ -480,5 +463,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
