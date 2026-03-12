@@ -165,7 +165,7 @@ function App() {
                 alt="Solana Logo"
                 className="w-8 h-8"
               />
-              <span className="text-2xl font-bold text-white">Solana Explorer</span>
+              <span className="text-2xl font-bold text-white">Explore the Solana Chain</span>
             </div>
             <div className="flex flex-wrap items-center gap-2 md:gap-4">
               <div className="relative">
